@@ -13,11 +13,6 @@ public class Product implements Comparable {
         this.price = price;
     }
 
-    public Product(String name, int price) {
-        this.name = name;
-        this.price = price;
-    }
-
     public int getId() {
         return id;
     }
@@ -41,7 +36,6 @@ public class Product implements Comparable {
     public void setPrice(int price) {
         this.price = price;
     }
-
 
     @Override
     public String toString() {

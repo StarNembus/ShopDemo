@@ -1,24 +1,20 @@
 package ShopDemo;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Shop {
-    private List<Product> products;
+    private Set<Product> products;
 
 
     public Shop() {
-        products = new ArrayList<>();
+        this.products = new LinkedHashSet<>();
     }
 
-    public void addProduct(Product product) {
-        if (products.contains(product)) {
-            System.out.println("This id " + product + "exist");
-        } else {
-            product.setId(products.size() + 1);
-            products.add(product);
+    public boolean addProduct(Product product) {
+        if (getProductById(product.getId()) != null) {
+            return false; // выкинуть ошибку
         }
+        return products.add(product);
     }
 
     public Product getProductById(int productId) {
@@ -30,24 +26,25 @@ public class Shop {
         return null;
     }
 
-    public List<Product> getProducts() {
+    public Set<Product> getProducts() {
         return products;
     }
 
-    public void setProducts(List<Product> products) {
-        this.products = products;
-    }
-
-    public void removeProduct(int productId) {
+    public boolean removeProduct(int productId) {
         products.remove(getProductById(productId));
+        return false;
     }
 
-    public Product changeProduct(Product product) {
-        if (!products.contains(product)) {
-            addProduct(product);
-            System.out.println("Product " + product + " add in list");
+    // Проверить, отрабатывает некорректно
+    public boolean changeProduct(Product product) {
+        Product findProduct = getProductById(product.getId());
+        if (findProduct == null){
+            return false;
         }
-        return products.set(products.indexOf(product), product);
+        findProduct.setId(product.getId());
+        findProduct.setName(product.getName());
+        findProduct.setPrice(product.getPrice());
+        return true;
     }
 
     @Override
@@ -56,4 +53,5 @@ public class Shop {
                 "products=" + products +
                 '}';
     }
+
 }
