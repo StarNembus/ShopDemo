@@ -1,6 +1,8 @@
 package ShopDemo;
 
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Shop {
     private Set<Product> products;
@@ -18,13 +20,21 @@ public class Shop {
     }
 
     public Product getProductById(int productId) {
-        for (Product p : products) {
-            if (productId == p.getId()) {
-                return p;
-            }
-        }
-        return null;
+
+        return products.stream()
+                .filter(p -> p.getId() == productId)
+                .findFirst()
+                .orElse(null);
     }
+
+
+//        for (Product p : products) {
+//            if (productId == p.getId()) {
+//                return p;
+//            }
+
+//        return null;
+//    }
 
     public Set<Product> getProducts() {
         return products;

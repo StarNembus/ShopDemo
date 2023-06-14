@@ -9,10 +9,13 @@ public class ShopIO {
     private Shop shop;
     private AppUtil appUtil;
 
+    private ProductRepository productRepository;
+
 
     public ShopIO() {
         this.shop = new Shop();
         this.appUtil = new AppUtil();
+        this.productRepository = new ProductRepositoryJDBCImpl();
     }
 
 
@@ -75,7 +78,7 @@ public class ShopIO {
         boolean repeatGetProducts = true;
         while (repeatGetProducts) {
             appUtil.appWrite(ShopMessages.PRODUCT_GETTING);
-            if (shop.getProducts().size() == 0) {
+            if (productRepository.getAllProducts() == null) {
                 appUtil.appWrite(ShopMessages.PRODUCT_NOT_FOUND);
                 return;
             }
@@ -85,17 +88,18 @@ public class ShopIO {
             switch (userInput) {
                 case 1:
                     productSet = new TreeSet<>(new CompPriceUp());
-                    fillTreeSet(productSet, shop.getProducts());
-                    showAllproducts(productSet);
+                    fillTreeSet(productSet, productRepository.getAllProducts());
+                    showAllProducts(productSet);
                     repeatGetProducts = false;
                     break;
                 case 2:
                     productSet = new TreeSet<>(new ComparatorPrice());
-                    fillTreeSet(productSet, shop.getProducts());
-                    showAllproducts(productSet);
+                    fillTreeSet(productSet, productRepository.getAllProducts());
+                    showAllProducts(productSet);
                     repeatGetProducts = false;
+                    break;
                 case 3:
-                    showAllproducts(shop.getProducts());
+                    showAllProducts(productRepository.getAllProducts());
                     break;
                 case 0:
                     repeatGetProducts = false;
@@ -105,26 +109,33 @@ public class ShopIO {
         }
     }
 
-    private void showAllproducts(Set<Product> products) {
-        for (Product p : products) {
+    private void showAllProducts(Collection<Product> productSet){
+        for (Object p : productSet) {
             appUtil.appWrite(String.valueOf(p));
         }
-
     }
 
-    private void fillTreeSet(Set<Product> fillTreeSet, Set<Product> products) {
+    private void fillTreeSet(Set<Product> fillTreeSet, List<Product> products) {
         fillTreeSet.addAll(products);
     }
 
     public void addProductWithUser() throws Exception {
         appUtil.appWrite(ShopMessages.PRODUCT_ADDING);
         Product product = getUserData();
-        if (!shop.addProduct(product)) {
+        if (productRepository.saveProduct(product) == null) {
             appUtil.appWrite(ShopMessages.CANNOT_SAVE_OR_UPDATE);
         }
     }
 
     private Product getUserData() throws Exception {
+        appUtil.appWrite(ShopMessages.GET_NAME);
+        String name = appUtil.appRead();
+        appUtil.appWrite(ShopMessages.GET_PRICE);
+        int price = appUtil.readInt();
+        return new Product(name, price);
+    }
+
+    private Product getUserDataId() throws Exception {
         appUtil.appWrite(ShopMessages.GET_ID);
         int id = appUtil.readInt();
         appUtil.appWrite(ShopMessages.GET_NAME);
@@ -139,20 +150,17 @@ public class ShopIO {
         appUtil.appWrite(ShopMessages.PRODUCT_REMOVING);
         appUtil.appWrite(ShopMessages.GET_ID);
         int id = appUtil.readInt();
-        if (!shop.removeProduct(id)) {
+        if (productRepository.deleteProductById(id)) {
             appUtil.appWrite(ShopMessages.CANNOT_REMOVE);
         }
-
     }
 
     public void setProductChoiceWithUser() throws Exception {
         appUtil.appWrite(ShopMessages.PRODUCT_GHANGING);
-        Product product = getUserData();
-        if (!shop.changeProduct(product)) {
+        Product product = getUserDataId();
+        if (productRepository.updateProduct(product) == null) {
             appUtil.appWrite(ShopMessages.CANNOT_SAVE_OR_UPDATE);
         }
-
-
     }
 }
 
